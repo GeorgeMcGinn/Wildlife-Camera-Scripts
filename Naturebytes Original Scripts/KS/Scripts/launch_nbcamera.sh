@@ -4,5 +4,5 @@
 
 cd /
 cd home/pi/Naturebytes/Scripts/
-python nbcamera.py
+sudo python nbcamera.py
 cd /

@@ -1,4 +1,4 @@
-# [Naturebytes](https://naturebytes.org/)
+# [Naturebytes Camera Software Enhancement](https://naturebytes.org/)
 
 This is an unofficial repositiory from the Naturebytes website. It both preserves the current state of source and Raspberry PI operating systems, as well as presents new Python scripts based on my experiences with using the Naturebytes game/trail camera in the field.
 
@@ -16,7 +16,7 @@ You can still go to their website to download the OS you need from their [Nature
 
 ## Issues Faced With Existing Python Scripts
 
-The scripts that Naturebytes provides are great examples, but they do not work well in my experience. This has to do more with the hardware (camera and PIR sensor) that with the current script cannot be overcome.
+The scripts that Naturebytes provides are great examples, but they do not work well in my experience. This has to do more with the hardware (camera and PIR sensor) than with the current script, which can be overcome.
 
 In my field tests, I noticed the first time that I used it to capture birds at a feeder, the images captured caught nothing. No birds. No wildlife. 
 
@@ -37,10 +37,27 @@ The two Python scripts I provide take care of this warm-up period, and will fire
 
 I accomplished this by switching over to the PiCamera module in Python. The script basically starts a preview on boot and keeps it on until you turn the camera off. This way, the camera warms up while the rest of the PI is finishing its boot. 
 
-Since the image or video taken is based on the preview, the preview stays active. This allows the camera to immediately take a photo or start your video recording, and from the start the exposure is right on.
+Since the image or video taken is based on the preview, the preview stays active. This allows the camera to immediately take a photo or start your video recording, and from the start when the exposure is correct.
+
+While the technical documentation states that the PIR sensor needs 5 seconds to reset itself (From HIGH to LOW state), field testing it reveals that it needs only 2 seconds to reset itself in Python. By switching the jumper from no-repeat to repeat, you can speed up the time that the sensor stays active, and I have found that I can set the sleep value to 2 instead of 5 to settle the PIR sensor.
+
+In fact, in the PiCamera Documentation by Dave Jones (Link below), all his examples use a 2-second reset or settling of the PIR Sensor from a HIGH to LOW state.
 
 This repository will have additional scripts that will fine-tune the exposure based on the condition of the preview, but until then, these scripts will allow you to not only get the first images of a wildlife when it shows up, but the camera will continue to take images while the PIR sensor is still registering the animal (or human).
- 
+
+
+## How to Install Software
+
+If you are using the Naturebytes system to run your Wildlife Cam, then there are two files that you need to copy from this repository:
+
+**launch_nbcamera.sh** - The BASH script that launches the Python script at boot time
+**wlCamera.py** - The Python script that is launched by the script above and runs the PIR sensor and camera.
+
+After installing these scripts to their respective folders on your device, ensure that the wlCamera.py script points to the storage device that you wish to store your photos. By default, I have coded this script to put all photos taken into ***/home/pi/Pictures/***.
+
+If you are installing a brand new Raspberry PI, you will need to download one of the Raspberry PI OS files that are Debian Buster or lower. One of the files linked below is an OS by Naturebytes, which already has the CRON task set up to execute the launch_nbcamrea.sh BASH script.
+
+
  ## Documents
  
  This distro has a directory called "Documents" that contain technical documentation on the cameras, sensors, and software manuals that are used in the Naturebytes wildlife cam.
@@ -49,3 +66,17 @@ This repository will have additional scripts that will fine-tune the exposure ba
  
  You can also download and install PiCamera from the source yourself. It is available on GitHub at: [Dave Jones - Waveform80/picamera](https://github.com/waveform80/picamera). Jones Software engineer at Canonical, developers of Ubuntu Linux.
  
+ 
+ ## Links To Documentation
+ 
+ For those who do not wish to download the documents with the software, here are the links to all the documents provided:
+
+- [Naturebytes Assembly Guide v4.4 (Current - Release 2021)](http://naturebytes.org/wp-content/uploads/2021/09/Manual-V4.4-reduced-size.pdf)
+- [Naturebytes Assembly Guide v3 (Release: 2018)](http://naturebytes.org/wp-content/uploads/2020/08/Naturebytes-Assembly-Guide-v3-reduced.pdf)
+- [Raspberry PI Camera Guide 2020 (Free Download)](https://magpi.raspberrypi.com/books/camera-guide)
+- [Raspberry PI Official Camera Technical Documentation (Website)](https://www.raspberrypi.com/documentation/accessories/camera.html)
+- [PiCamera - Technical Documentation (Website)](https://picamera.readthedocs.io/en/release-1.13/#)
+- [PiCamera Technical Documentation (PDF)](https://buildmedia.readthedocs.org/media/pdf/picamera/release-1.13/picamera.pdf)
+- [PIR Motion Sensor - Sunfounder](https://docs.sunfounder.com/projects/thales-kit/en/master/pir_motion_sensor.html)
+- [PIR Sensor - Parallax](https://www1.parallax.com/sites/default/files/downloads/910-28027-PIR-Sensor-REV-A-Documentation-v1.4.pdf)
+- [Adafruit PIR Sensor Documentation](https://cdn-learn.adafruit.com/downloads/pdf/pir-passive-infrared-proximity-motion-sensor.pdf)
