@@ -1,8 +1,24 @@
 # [Naturebytes Camera Software Enhancement](https://naturebytes.org/)
 
+&nbsp;
+# Table of Contents
+1. [Preserving Existing Software/RPI OS](#Preserving)
+2.  [Issues Faced With Existing Python Scripts](#ScriptIssues)
+3.  [New Cam Software](#NewCamSoftware)
+	* [wlCamera.py](#wlCamera)
+	* [wlVideo.py](#wlVideo)
+	* [wlMultiProcess.py](#wlMultiProcess)
+4. [How to Install Software](#Install)
+5. [Documents/Links](#Documentation)
+6. [Links To Documentation](#Links)
+&nbsp;
+* * *
+## Introduction
 This is an unofficial repositiory from the Naturebytes website. It both preserves the current state of source and Raspberry PI operating systems, as well as presents new Python scripts based on my experiences with using the Naturebytes game/trail camera in the field.
+&nbsp;
 
-## Preserving Existing Software/RPI OS
+<a name="Preserving"></a>
+# Preserving Existing Software/RPI OS
 
 As soon as the new version of Debian Bullseye came out, it was apparent that two things affected the use of cameras in general. 
 
@@ -13,8 +29,9 @@ The second issue is that the Python module, PiCamera is no longer compatible wit
 So in this repository, I have provided the last release of Debian Buster that does support raspistill/raspivid and PiCamera, along with several of Naturebytes' own OS.
 
 You can still go to their website to download the OS you need from their [Naturebytes resource page.](https://naturebytes.org/2020/09/03/wildlife-cam-kit-resources/)
-
-## Issues Faced With Existing Python Scripts
+&nbsp;
+<a name="ScriptIssues"></a>
+# Issues Faced With Existing Python Scripts
 
 The scripts that Naturebytes provides are great examples, but they do not work well in my experience. This has to do more with the hardware (camera and PIR sensor) than with the current script, which can be overcome.
 
@@ -29,9 +46,9 @@ While you can also fine tune your PIR sensor via hardware, one other issue with 
 When I shortened the time that raspistill needed to turn on and take an image, all my photos were blown out. I switched over to raspivid, and then I saw the image go from blown out to being perfectly exposed.
 
 Even when I set the raspistill to first preview then take a photo, the camera needed to warm up before it could take good photos. And since wildlife does not stop and wait until your camera takes a photo, another method needed to be developed to overcome this.
-
-
-## New Cam Software
+&nbsp;
+<a name="NewCamSoftware"></a>
+# New Cam Software
 
 The two Python scripts I provide take care of this warm-up period, and will fire the camera as soon as the PIR sensor is set to HIGH.
 
@@ -45,29 +62,70 @@ In fact, in the PiCamera Documentation by Dave Jones (Link below), all his examp
 
 This repository will have additional scripts that will fine-tune the exposure based on the condition of the preview, but until then, these scripts will allow you to not only get the first images of a wildlife when it shows up, but the camera will continue to take images while the PIR sensor is still registering the animal (or human).
 
+<a name="wlCamera"></a>
+## <u>wlCamera.py</u>
 
-## How to Install Software
+This script uses PiCamera to detect PIR sensor activation and image capture. It is designed to take 5 images with a .05 second pause between each image when the PIR Sensor detects a source of infrared heat radiation based on the distance you set on the hardware itself. The steps executed by this script are:
+
+1. Set up logging file to track the camera's progress and process from the time it is turned on. It will display the settings of the camera script, and then track whether or not the PIR sensor was activated, when photos were taken and the file names of each, whether it was sucessful, when the PIR sensor settles, and when it is ready to detect a new target. All entries are date/time stamped, with message numbers.
+2. The script sets up the GPIO Pin location of the PIR sensor (based on the Naturebytes build, it is 27, not 13), the exposure and meter modes, auto white balance, image resolution, and save location for the images (default is: /home/pi/Pictures/).
+3. Starts the Camera Preview and waits 5 seconds for the exposure settings to take effect. A log entry is recorded when the preview sucessfully starts.
+4. The script then enters an infinite loop, where it waits for the PIR to detect infrared heat radiation motion. This is a wait-state, and the script holds until the PIR sensor detects infrared heat radiation.
+5. As soon as detected, the script continues, where it sets the file name to the cuurent date and time of activation. Then the script takes 5 photos, each .05 seconds apart, and adds a sequence number (1-5) at the end of the datetime stamp. The default images taken is a .PNG file.
+6. After the camera takes the 5th image, the scripts sleeps for 2 seconds to let the PIR Sensor settle. Then it loops back to where it waits for the PIR to detect infrared heat radiation motion. 
+
+The camera continues on this loop until either: 1) An error is detected and the exception routine stops the camera; 2) The battery pack dies; or 3) You turn the camera off when you go to retrieve it.
+
+Also of importance is that this script has been tuned to the jumper on the PIR Sensor is set into the HIGH Mode, which speeds up continuous detection of an infrared heat radiation source still present in the sensor's range.
+
+<a name="wlVideo"></a>
+## <u>wlVideo.py</u>
+
+This script uses PiCamera to detect PIR sensor activation and video capture. It is designed to take 3 10-second videos with a .05 second pause between each recording when the PIR Sensor detects a source of infrared heat radiation based on the distance you set on the hardware itself. The steps executed by this script are (similar in design to wlCamera.py):
+
+1. Set up logging file to track the camera's progress and process from the time it is turned on. It will display the settings of the camera script, and then track whether or not the PIR sensor was activated, when videos were taken and the file names of each, whether it was sucessful, when the PIR sensor settles, and when it is ready to detect a new target. All entries are date/time stamped, with message numbers.
+2. The script sets up the GPIO Pin location of the PIR sensor (based on the Naturebytes build, it is 27, not 13), the exposure and meter modes, auto white balance, video resolution and framerate, and save location for the videos (default is: /home/pi/Videos/).
+3. Starts the Camera Preview and waits 5 seconds for the exposure settings to take effect. A log entry is recorded when the preview sucessfully starts.
+4. The script then enters an infinite loop, where it waits for the PIR to detect infrared heat radiation motion. This is a wait-state, and the script holds until the PIR sensor detects infrared heat radiation.
+5. As soon as detected, the script continues, where it sets the file name to the cuurent date and time of activation. Then the script takes 3 10-second videos, each .05 seconds apart, and adds a sequence number (1-3) at the end of the datetime stamp. The default videos taken is a .h264 file.
+6. After the camera takes the 5th image, the scripts sleeps for 2 seconds to let the PIR Sensor settle. Then it loops back to where it waits for the PIR to detect infrared heat radiation motion. 
+
+The camera continues on this loop until either: 1) An error is detected and the exception routine stops the camera; 2) The battery pack dies; or 3) You turn the camera off when you go to retrieve it.
+
+Also of importance is that this script has been tuned to the jumper on the PIR Sensor is set into the HIGH Mode, which speeds up continuous detection of an infrared heat radiation source still present in the sensor's range.
+
+<a name="wlMultiProcess"></a>
+## <u>wlMultiProcess.py</u>
+
+This is an experimental script that allows your camera to take both still photos and videos at the same time when the PIR Sensor detects an infrared heat radiation source. This is accomplished by using the multi-processing rather than multi-threading.
+
+While it is included here, it has not been thoroughly tested & debugged. Use it at your own risk. When it is ready, this mesage will change.
+&nbsp;
+<a name="Install"></a>
+# How to Install Software
 
 If you are using the Naturebytes system to run your Wildlife Cam, then there are two files that you need to copy from this repository:
 
-**launch_nbcamera.sh** - The BASH script that launches the Python script at boot time
+`launch_nbcamera.sh` - The BASH script that launches the Python script at boot time
 **wlCamera.py** - The Python script that is launched by the script above and runs the PIR sensor and camera.
 
-After installing these scripts to their respective folders on your device, ensure that the wlCamera.py script points to the storage device that you wish to store your photos. By default, I have coded this script to put all photos taken into ***/home/pi/Pictures/***.
+After installing these scripts to their respective folders on your device, ensure that the wlCamera.py script points to the storage device that you wish to store your photos. By default, I have coded this script to put all photos taken into` /home/pi/Pictures/`.
 
-If you are installing a brand new Raspberry PI, you will need to download one of the Raspberry PI OS files that are Debian Buster or lower. One of the files linked below is an OS by Naturebytes, which already has the CRON task set up to execute the launch_nbcamrea.sh BASH script.
+If you want to take videos instead, replace wlCamera.py with wlVideo.py in `launch_nbcamera.sh`.
 
-
- ## Documents
+If you are installing a brand new Raspberry PI, you will need to download one of the Raspberry PI OS files that are Debian Buster or lower. One of the files linked below is an OS by Naturebytes, which already has the CRON task set up to execute the `launch_nbcamrea.sh` BASH script. There is a link below in Documents that will explain how to set up launch_nbcamera.sh on a boot of your PI.
+&nbsp;
+<a name="Documentation"></a>
+ # Documents
  
  This distro has a directory called "Documents" that contain technical documentation on the cameras, sensors, and software manuals that are used in the Naturebytes wildlife cam.
  
- One document that is provided via the web is the [PiCamera Docmentation](https://picamera.readthedocs.io/en/release-1.13/)
+ One document that is provided via the web is the [PiCamera Docmentation](https://picamera.readthedocs.io/en/release-1.13/).
  
  You can also download and install PiCamera from the source yourself. It is available on GitHub at: [Dave Jones - Waveform80/picamera](https://github.com/waveform80/picamera). Jones Software engineer at Canonical, developers of Ubuntu Linux.
- 
- 
- ## Links To Documentation
+ &nbsp;
+ <a name="Links"></a>
+ # Links To Documentation
  
  For those who do not wish to download the documents with the software, here are the links to all the documents provided:
 
@@ -80,3 +138,9 @@ If you are installing a brand new Raspberry PI, you will need to download one of
 - [PIR Motion Sensor - Sunfounder](https://docs.sunfounder.com/projects/thales-kit/en/master/pir_motion_sensor.html)
 - [PIR Sensor - Parallax](https://www1.parallax.com/sites/default/files/downloads/910-28027-PIR-Sensor-REV-A-Documentation-v1.4.pdf)
 - [Adafruit PIR Sensor Documentation](https://cdn-learn.adafruit.com/downloads/pdf/pir-passive-infrared-proximity-motion-sensor.pdf)
+- [Adding a Hardware/realtime clock to your Raspberry PI](https://thepihut.com/blogs/raspberry-pi-tutorials/17209332-adding-a-real-time-clock-to-your-raspberry-pi)
+- [Setting Up a CRON on a Raspberry PI](https://raspberrytips.com/schedule-task-raspberry-pi/)
+&nbsp;
+&nbsp;
+* * *
+***Updated: 12/08/2021 20:48***
