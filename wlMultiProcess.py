@@ -1,3 +1,26 @@
+#! usr/bin/python3
+#########################################################################################
+#       Program: wlMultiProcess.py
+#    Written By: George McGinn                
+#                <gjmcginn@icloud.com>
+#  Date Created: 11/25/2021
+#
+#   Description: Wildlife Cam Kit script to shoot still images from a wildlife/trail cam, 
+#                like the Naturebytes camera system. Script will work with any PI camera.
+#                Uses the PiCamera Python module instead of raspistill for greater control
+#                over the imaging process.
+#
+# Version 1.0 - Created 11/25/2021
+#
+# CHANGE LOG
+#########################################################################################
+# 11/30/2021 GJM - New Program.
+#########################################################################################
+#  Copyright (C) 2021 by George McGinn.  All Rights Reserved.
+#########################################################################################
+#
+
+
 from multiprocessing import Process
 from picamera import PiCamera
 from datetime import datetime
@@ -112,7 +135,7 @@ if __name__ == "__main__":
 
 	except KeyboardInterrupt:
 		logging.info("*** KeyboardInterrupt detected. Exiting program")
-		sys.exit()
+		sys.exit(1)
 
 	except:
 		logging.info("*** ERROR: Error detected. Exiting program")

@@ -14,7 +14,7 @@
 &nbsp;
 * * *
 ## Introduction
-This is an unofficial repositiory from the Naturebytes website. It both preserves the current state of source and Raspberry PI operating systems, as well as presents new Python scripts based on my experiences with using the Naturebytes game/trail camera in the field.
+This is an unofficial repositiory for the Naturebytes Wildlife/Trail Camera. It presents new Python scripts based on my experiences with using the Naturebytes wildlife camera in the field.
 &nbsp;
 
 <a name="Preserving"></a>
@@ -26,7 +26,7 @@ The first is that raspistill and raspivid no longer exists. They were removed fr
 
 The second issue is that the Python module, PiCamera is no longer compatible with the new release of Bullseye. And as of Nov 25, 2021, there is no timetable on when changes to the Python PiCamera module will be updated and released to be compatible with the new Raspberry PI OS, or if the Raspberry PI will update their OS to make it compatible.
 
-So in this repository, I have provided the last release of Debian Buster that does support raspistill/raspivid and PiCamera, along with several of Naturebytes' own OS.
+To use this script, you will need to either use the OS provided by Naturebytes (link below) or use the [Raspberry Pi OS (Legacy) with desktop](https://www.raspberrypi.com/software/operating-systems/#raspberry-pi-os-32-bit), provided by the Raspberry PI Foundation. (For more information on the Raspberry PI Legacy OS, you can check out: [“New” old functionality with Raspberry Pi OS (Legacy)](https://www.raspberrypi.com/news/new-old-functionality-with-raspberry-pi-os-legacy/))
 
 You can still go to their website to download the OS you need from their [Naturebytes resource page.](https://naturebytes.org/2020/09/03/wildlife-cam-kit-resources/)
 &nbsp;
@@ -143,4 +143,5 @@ If you are installing a brand new Raspberry PI, you will need to download one of
 &nbsp;
 &nbsp;
 * * *
-***Updated: 12/08/2021 20:48***
+***Updated: 01/14/2022 18:18***
+ 
